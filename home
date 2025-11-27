@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>International Sports and Technology Transformation</title>
+  <style>
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { margin: 0; background: #f4f6f9; }
+    .container { max-width: 900px; margin: auto; padding: 20px; }
+    h1 { text-align: center; }
+    .card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      margin-top: 20px;
+    }
+    .tabs { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
+    .tabs button {
+      padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; background: #e5e7eb;
+    }
+    .tabs button.active { background: #2563eb; color: #fff; }
+    .form { display: none; }
+    .form.active { display: block; }
+    label { display: block; margin-top: 10px; font-weight: 600; }
+    input {
+      width: 100%; padding: 10px; margin-top: 5px;
+      border-radius: 8px; border: 1px solid #ccc;
+    }
+    button.submit-btn {
+      width: 100%; margin-top: 15px; padding: 12px; border: none;
+      border-radius: 10px; background: #2563eb; color: white; font-size: 16px;
+      cursor: pointer;
+    }
+    .error { color: red; text-align: center; margin-top: 10px; }
+    .dashboard {
+      display: none; margin-top: 30px; text-align: center;
+      background: #fff; padding: 30px; border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
+
+    /* Popup */
+    .popup {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      display: none; justify-content: center; align-items: center;
+    }
+    .popup-content {
+      background: #fff; padding: 25px; border-radius: 15px; text-align: center;
+      width: 90%; max-width: 400px;
+    }
+    .reg-box {
+      font-weight: bold; font-size: 20px; margin: 15px 0; color: #2563eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>International Sports and Technology Transformation<br/>Athletic Training Unit</h1>
+
+    <div class="card" id="authSection">
+      <div class="tabs">
+        <button id="loginTab" class="active">Login</button>
+        <button id="signupTab">Sign Up</button>
+      </div>
+
+      <!-- Login Form -->
+      <div class="form active" id="loginForm">
+        <label>Date of Birth</label>
+        <input type="date" id="loginDob" required />
+
+        <label>Registration Number</label>
+        <input type="text" id="loginReg" placeholder="PRN-XXXXXXXXXXXX" required />
+
+        <label>Password</label>
+        <input type="password" id="loginPass" required />
+
+        <button class="submit-btn" onclick="login()">Login</button>
+        <div class="error" id="loginError"></div>
+      </div>
+
+      <!-- Signup Form -->
+      <div class="form" id="signupForm">
+        <label>Name</label>
+        <input type="text" id="signName" required />
+
+        <label>Email</label>
+        <input type="email" id="signEmail" required />
+
+        <label>Date of Birth</label>
+        <input type="date" id="signDob" required />
+
+        <label>Password</label>
+        <input type="password" id="signPass" required />
+
+        <button class="submit-btn" onclick="signup()">Sign Up</button>
+      </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard" id="dashboard">
+      <h2 id="welcomeText"></h2>
+      <p>Welcome to the Athletic Training Unit Dashboard</p>
+    </div>
+  </div>
+
+  <!-- Popup -->
+  <div class="popup" id="popup">
+    <div class="popup-content">
+      <h3>Copy Your Registration Number</h3>
+      <div class="reg-box" id="regNumber"></div>
+      <p>Popup closes in <span id="countdown">25</span> seconds</p>
+      <button class="submit-btn" onclick="copyReg()">Copy Registration Number</button>
+    </div>
+  </div>
+
+  <script>
+    const loginTab = document.getElementById('loginTab');
+    const signupTab = document.getElementById('signupTab');
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+
+    loginTab.onclick = () => {
+      loginTab.classList.add('active');
+      signupTab.classList.remove('active');
+      loginForm.classList.add('active');
+      signupForm.classList.remove('active');
+    };
+
+    signupTab.onclick = () => {
+      signupTab.classList.add('active');
+      loginTab.classList.remove('active');
+      signupForm.classList.add('active');
+      loginForm.classList.remove('active');
+    };
+
+    function generateRegNumber() {
+      let digits = '';
+      for (let i = 0; i < 12; i++) {
+        digits += Math.floor(Math.random() * 10);
+      }
+      return 'PRN-' + digits;
+    }
+
+    function signup() {
+      const name = document.getElementById('signName').value;
+      const email = document.getElementById('signEmail').value;
+      const dob = document.getElementById('signDob').value;
+      const pass = document.getElementById('signPass').value;
+
+      if (!name || !email || !dob || !pass) {
+        alert('Please fill all fields');
+        return;
+      }
+
+      const reg = generateRegNumber();
+
+      const user = { name, email, dob, pass, reg };
+      localStorage.setItem('userData', JSON.stringify(user));
+
+      document.getElementById('regNumber').innerText = reg;
+      showPopup();
+
+      // Switch to login tab after signup
+      loginTab.click();
+    }
+
+    let timer;
+    function showPopup() {
+      const popup = document.getElementById('popup');
+      const countdownEl = document.getElementById('countdown');
+      let timeLeft = 25;
+
+      popup.style.display = 'flex';
+      countdownEl.innerText = timeLeft;
+
+      timer = setInterval(() => {
+        timeLeft--;
+        countdownEl.innerText = timeLeft;
+
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          popup.style.display = 'none';
+        }
+      }, 1000);
+    }
+
+    function copyReg() {
+      const reg = document.getElementById('regNumber').innerText;
+      navigator.clipboard.writeText(reg);
+      alert('Registration number copied!');
+    }
+
+    function login() {
+      const dob = document.getElementById('loginDob').value;
+      const reg = document.getElementById('loginReg').value;
+      const pass = document.getElementById('loginPass').value;
+      const error = document.getElementById('loginError');
+
+      const stored = JSON.parse(localStorage.getItem('userData'));
+
+      if (!stored || stored.dob !== dob || stored.reg !== reg || stored.pass !== pass) {
+        error.innerText = 'Information invalid';
+        return;
+      }
+
+      document.getElementById('authSection').style.display = 'none';
+      const dashboard = document.getElementById('dashboard');
+      const welcome = document.getElementById('welcomeText');
+      welcome.innerText = 'Welcome, ' + stored.name;
+      dashboard.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
